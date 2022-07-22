@@ -1,4 +1,5 @@
-rootProject.name = 'playground-spring-root'
+rootProject.name = 'playground-spring'
 
 include 'application-batch'
 include 'domain-maria'
+include 'etc-yaml-importer'
