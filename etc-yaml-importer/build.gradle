@@ -12,6 +12,10 @@ repositories {
     mavenCentral()
 }
 
+task wrapper(type: Wrapper){
+    gradleVersion = '7.4'
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
