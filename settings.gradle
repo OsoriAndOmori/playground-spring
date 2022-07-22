@@ -1,0 +1,4 @@
+rootProject.name = 'playground-spring-root'
+
+include 'application-batch'
+include 'domain-maria'
