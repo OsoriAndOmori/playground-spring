@@ -2,143 +2,55 @@ package com.osori.yaml.importer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.context.properties.bind.Bindable;
-import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.boot.context.properties.bind.PropertySourcesPlaceholdersResolver;
-import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.boot.env.YamlPropertySourceLoader;
-import org.springframework.boot.origin.OriginTrackedValue;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Profiles;
 import org.springframework.core.env.PropertySource;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.List;
 
 @Slf4j
 public class CustomYamlImporter implements EnvironmentPostProcessor, Ordered {
-
-    private static final int DEFAULT_ORDER = Ordered.LOWEST_PRECEDENCE;
-    private static final String OLD_SPRING_PROFILES = "spring.profiles";
-    private static final String SPRING_PROFILES = "spring.config.activate.on-profile";
-
-    private final YamlPropertySourceLoader loader = new YamlPropertySourceLoader();
-
     @Override
-    public void postProcessEnvironment(ConfigurableEnvironment environment,
-                                       SpringApplication application) {
-        log.info("** START CustomYamlPropertiesEnvironmentPostProcessor **");
-        ResourceLoader resourceLoader = Optional
-                .ofNullable(application.getResourceLoader())
-                .orElseGet(DefaultResourceLoader::new);
+    public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+        String[] activeProfiles = environment.getActiveProfiles();
+        Assert.notEmpty(activeProfiles, "Profiles should not empty");
 
-        ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(resourceLoader);
+        String activeProfile = activeProfiles[0];
+        String resourcesFilePath = "classpath*:*-" + activeProfile + ".yaml";
 
-        Resource[] resources = new Resource[]{};
-        try{
-            resources = resourcePatternResolver.getResources("classpath*:application*.yaml");
-        }catch(IOException e){
-            log.error("{}", e.getMessage(), e);
-        }
-        for(Resource resource : resources) {
-            loadYaml(resource, environment)
-                    .forEach(propertySource -> {
-                        log.info("[Yaml Third Properties Load] file: {}", resource.getFilename());
-                        environment.getPropertySources().addLast(propertySource);
-                    });
-        }
-    }
-
-    private List<PropertySource<?>> loadYaml(Resource path, ConfigurableEnvironment environment) {
-        if (!path.exists()) {
-            throw new IllegalArgumentException("Resource " + path + " does not exist");
-        }
+        ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        YamlPropertySourceLoader loader = new YamlPropertySourceLoader();
 
         try {
-            List<PropertySource<?>> defaultPropertySource = new ArrayList<>();
+            Resource[] resources = resourcePatternResolver.getResources(resourcesFilePath);
+            for (Resource resource : resources) {
+                List<PropertySource<?>> result = null;
 
-            List<PropertySource<?>> propertySourceList = this.loader.load(path.getFilename(), path).stream().filter(
-                    propertySource -> {
-                        Binder binder = new Binder(
-                                ConfigurationPropertySources.from(propertySource),
-                                new PropertySourcesPlaceholdersResolver(environment));
-                        String[] profiles = Stream.concat(
-                                        Arrays.stream(loadProfiles(binder, OLD_SPRING_PROFILES)),
-                                        Arrays.stream(loadProfiles(binder, SPRING_PROFILES))
-                                )
-                                .toArray(String[]::new);
-                        if (profiles.length == 0) {
-                            defaultPropertySource.add(propertySource);
-                            return false;
-                        }
-                        return environment.acceptsProfiles(Profiles.of(profiles));
-                    }).collect(Collectors.toList());
+                if (resource.exists()) {
+                    result = loader.load(resource.getDescription(), resource);
+                }
 
-            propertySourceList = sortProfilePriority(environment, propertySourceList);
-            propertySourceList.addAll(defaultPropertySource);
-
-            return propertySourceList;
+                if (result != null) {
+                    result.forEach(environment.getPropertySources()::addLast);
+                }
+            }
+        } catch (IOException e) {
+            log.error("err loading of yaml files of " + resourcesFilePath);
+            throw new IllegalStateException("err loading of yaml files of " + resourcesFilePath, e);
+        } finally {
+            log.info("br");
         }
-        catch (IOException ex) {
-            throw new IllegalStateException(
-                    "Failed to load yaml configuration from " + path, ex);
-        }
-    }
-
-    private String[] loadProfiles(Binder binder, String profileConfig) {
-        String[] profiles = binder.bind(profileConfig, Bindable.of(String[].class))
-                .orElse(new String[0]);
-        if(OLD_SPRING_PROFILES.equals(profileConfig) && profiles.length > 0) {
-            log.warn("'{}' is deprecated since spring boot 2.4 and later.", OLD_SPRING_PROFILES);
-        }
-        return profiles;
-    }
-
-    private List<PropertySource<?>> sortProfilePriority(ConfigurableEnvironment environment, List<PropertySource<?>> propertySourceList) {
-        String[] activeProfiles = environment.getActiveProfiles();
-
-        return IntStream.range(0, activeProfiles.length)
-                .map(i -> activeProfiles.length - i - 1)
-                .mapToObj(i -> activeProfiles[i])
-                .filter(Objects::nonNull)
-                .map(profile -> propertySourceList.stream().filter(propertySource -> matchProfiles(profile, propertySource)).findAny().orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    private boolean matchProfiles(String profile, PropertySource<?> propertySource) {
-        return matchProfiles(profile, propertySource, OLD_SPRING_PROFILES) || matchProfiles(profile, propertySource, SPRING_PROFILES);
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean matchProfiles(String profile, PropertySource<?> propertySource, String springProfileConfig) {
-        Object property = propertySource.getProperty(springProfileConfig);
-        if(property == null) {
-            return ((Map<String, OriginTrackedValue>) propertySource.getSource())
-                    .entrySet()
-                    .stream()
-                    .filter(entry -> entry.getKey().contains(springProfileConfig))
-                    .map(trackedValueEntry -> trackedValueEntry.getValue().toString())
-                    .anyMatch(profile::equals);
-        }
-
-        return Arrays.stream(((String) property).split(","))
-                .map(String::trim)
-                .anyMatch(s -> s.equals(profile));
     }
 
     @Override
     public int getOrder() {
-        return DEFAULT_ORDER;
+        return Ordered.LOWEST_PRECEDENCE;
     }
 }
