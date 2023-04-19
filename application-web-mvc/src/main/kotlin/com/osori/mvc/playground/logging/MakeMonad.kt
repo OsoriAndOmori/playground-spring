@@ -22,11 +22,17 @@ private fun square(it: Int) = it * it
 private fun isGreaterThan50(it: Int) = it > 50
 
 data class TestMonad<out A>(val current: A, val history: List<String>) : Monad<A> {
-    override fun <V> pure(value: V): Monad<V> {
-        TODO("Not yet implemented")
+    companion object {
+        fun <V> pure(value: V): TestMonad<V> {
+            return TestMonad(value, listOf())
+        }
     }
 
-    override fun <B> flatMap(f: (A) -> Monad<B>): Monad<B> {
+    override fun <V> pure(value: V): TestMonad<V> {
+        return TestMonad(value, listOf())
+    }
+
+    override fun <B> flatMap(f: (A) -> Monad<B>): TestMonad<B> {
         TODO("Not yet implemented")
     }
 
