@@ -1,0 +1,5 @@
+### empty
+GET localhost:8080/optional/test
+
+### test
+GET localhost:8080/optional/test?sout=test

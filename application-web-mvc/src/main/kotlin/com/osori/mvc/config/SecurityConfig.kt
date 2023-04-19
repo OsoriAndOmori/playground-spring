@@ -15,7 +15,7 @@ class SecurityConfig {
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.authorizeRequests()
-            .mvcMatchers("/", "/info").permitAll()
+            .mvcMatchers("/", "/info", "/optional/test").permitAll()
             .mvcMatchers("/admin").hasRole("ADMIN")
             .anyRequest().permitAll()
         http.formLogin()
