@@ -33,7 +33,11 @@ data class TestMonad<out A>(val current: A, val history: List<String>) : Monad<A
     }
 
     override fun <B> flatMap(f: (A) -> Monad<B>): TestMonad<B> {
-        TODO("Not yet implemented")
+        val current1 = f(current) as HistoryMonad<B>
+        return TestMonad(current1.current, this.history + current1.history)
     }
 
+    override fun toString(): String {
+        return "HistoryMonad(current=$current, history=$history)"
+    }
 }
