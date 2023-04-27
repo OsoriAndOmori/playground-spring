@@ -10,9 +10,9 @@ data class Account(
     val id: Int? = null,
 
     @Column(unique = true)
-    val username: String? = null,
+    var username: String? = null,
     var password: String? = null,
-    val role: String? = null
+    var role: String? = null
 ) {
     fun encodePassword(passwordEncoder: PasswordEncoder) {
         password = passwordEncoder.encode(password)
