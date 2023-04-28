@@ -12,11 +12,11 @@ import com.osori.mvc.playground.springcore.service.OrderServiceImpl
 //얘가 이제 나만의 ApplicationContext 임
 class SpringCoreAppConfig {
     fun memberService(): MemberService {
-        return MemberServiceImpl()
+        return MemberServiceImpl(memberRepository())
     }
 
     fun orderService(): OrderService {
-        return OrderServiceImpl()
+        return OrderServiceImpl(discountPolicy())
     }
 
     fun memberRepository(): MemberRepository {
@@ -24,6 +24,6 @@ class SpringCoreAppConfig {
     }
 
     fun discountPolicy(): DiscountPolicy {
-        return FixedDiscountPolicy()
+        return FixedDiscountPolicy(1000)
     }
 }

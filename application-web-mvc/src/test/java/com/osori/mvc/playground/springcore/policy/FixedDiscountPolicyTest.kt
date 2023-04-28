@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 
 internal class FixedDiscountPolicyTest {
-    private val discountPolicy : DiscountPolicy = FixedDiscountPolicy()
+    private val discountPolicy : DiscountPolicy = FixedDiscountPolicy(1000)
 
     @Test
     @DisplayName("VIP 는 1000원 까줌")

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 
 internal class RateDiscountPolicyTest {
-    private val discountPolicy : DiscountPolicy = RateDiscountPolicy()
+    private val discountPolicy : DiscountPolicy = RateDiscountPolicy(10)
 
     @Test
     @DisplayName("VIP 는 10% 까줌")
