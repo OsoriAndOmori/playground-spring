@@ -23,7 +23,7 @@ internal class OrderServiceImplTest {
     }
 
     @Test
-    fun createOrder() {
+    fun xcreateOrder() {
         val member = memberService!!.fetchMember(1)
         val item = LectureItem("item1", "아이템1", 10000)
         val order = orderService!!.createOrder(member, item)
