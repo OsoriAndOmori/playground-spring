@@ -8,7 +8,7 @@ class FixedDiscountPolicy : DiscountPolicy {
 
     override fun discount(member: LectureMember, itemOriginalPrice: Int): Int {
         return if (member.grade == Grade.VIP) {
-            itemOriginalPrice - amount
+            amount
         } else {
             0
         }
