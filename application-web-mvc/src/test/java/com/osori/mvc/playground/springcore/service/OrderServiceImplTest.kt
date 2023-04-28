@@ -1,5 +1,6 @@
 package com.osori.mvc.playground.springcore.service
 
+import com.osori.mvc.playground.springcore.SpringCoreAppConfig
 import com.osori.mvc.playground.springcore.domain.Grade
 import com.osori.mvc.playground.springcore.domain.LectureItem
 import com.osori.mvc.playground.springcore.domain.LectureMember
@@ -10,8 +11,8 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 
 internal class OrderServiceImplTest {
-    private val orderService: OrderService = OrderServiceImpl()
-    private val memberService: MemberService = MemberServiceImpl()
+    private val orderService: OrderService = SpringCoreAppConfig().orderService();
+    private val memberService: MemberService = SpringCoreAppConfig().memberService();
 
     @BeforeEach
     fun before() {
