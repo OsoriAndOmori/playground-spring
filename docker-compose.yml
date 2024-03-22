@@ -1,0 +1,19 @@
+version: "3.1"
+
+services:
+  maria:
+    image: mariadb
+    container_name: maria-playground
+    ports:
+      - 3306:3306
+    environment:
+      - MARIADB_DATABASE=playground
+      - MARIADB_USER=osori
+      - MARIADB_PASSWORD=osori
+      - MARIADB_ROOT_PASSWORD=osori
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./.docker/maria:/docker-entrypoint-initdb.d

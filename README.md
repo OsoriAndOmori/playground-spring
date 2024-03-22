@@ -17,10 +17,5 @@
 
 ## 사전 준비
 ```
-mkdir $HOME/db/maria
-docker run --name local-my-mariadb \
--v $HOME/db/maria:/var/lib/mysql -p 3306:3306 \
--e MARIADB_ROOT_PASSWORD=osori \
--e MARIADB_USER=osori -e MARIADB_PASSWORD=osori \
--d mariadb:latest
+$ docker-compose up -d
 ```

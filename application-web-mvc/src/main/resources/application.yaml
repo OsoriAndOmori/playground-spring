@@ -6,6 +6,10 @@ spring:
       name: admin
       password: admin
       roles: ADMIN
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
 #logging:
 #  level:

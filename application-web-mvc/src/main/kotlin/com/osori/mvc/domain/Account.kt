@@ -1,7 +1,7 @@
 package com.osori.mvc.domain
 
+import jakarta.persistence.*
 import org.springframework.security.crypto.password.PasswordEncoder
-import javax.persistence.*
 
 @Entity
 data class Account(
