@@ -2,7 +2,6 @@ rootProject.name = 'playground-spring'
 
 include 'application-batch'
 include 'application-web-mvc'
-include 'application-servlet'
 include 'application-web-reactive'
 include 'domain-maria'
 include 'etc-yaml-importer'
