@@ -6,9 +6,9 @@ import com.osori.mvc.playground.springcore.domain.LectureMember
 open class FixedDiscountPolicy(private val amount: Int) : DiscountPolicy {
     override fun discount(member: LectureMember, itemOriginalPrice: Int): Int {
         return if (member.grade == Grade.VIP) {
-            amount
+            itemOriginalPrice - amount
         } else {
-            0
+            itemOriginalPrice
         }
     }
 }

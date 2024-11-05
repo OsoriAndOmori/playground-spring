@@ -29,7 +29,7 @@ internal class OrderServiceImplTest {
         val order = orderService!!.createOrder(member, item)
 
         assertEquals(1, order.memberId)
-        assertEquals(1000, order.discountPrice)
+        assertEquals(9000, order.discountPrice)
     }
 
     @Test
@@ -39,6 +39,6 @@ internal class OrderServiceImplTest {
         val order = orderService!!.createOrder(member, item)
 
         assertEquals(2, order.memberId)
-        assertEquals(0, order.discountPrice)
+        assertEquals(10000, order.discountPrice)
     }
 }
